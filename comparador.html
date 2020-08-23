@@ -26,12 +26,6 @@
     />
   </head>
   <body>
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="https://unpkg.com/vue-cookies@1.7.3/vue-cookies.js"></script>
-    <script src="https://unpkg.com/vue-tour@1.5.0/dist/vue-tour.umd.min.js"></script>
-
     <v-app id="app">
       <v-main>
         <v-container fluid class="fill-height" style="word-break: normal;">
@@ -661,7 +655,7 @@
 
           <v-tour
             name="comparadorTour"
-            :steps="steps"
+            :steps="tourSteps"
             :options="{
           labels: {
             buttonSkip: 'Cerrar',
@@ -678,22 +672,17 @@
       .popusk {
         width: 2em;
       }
-
       .popusk-2 {
         flex-grow: 1;
       }
-
       @media only screen and (max-width: 768px) {
-        /* For mobile phones: */
         .popusk {
           width: 0;
         }
-
         .popusk-2 {
           flex-grow: 3;
         }
       }
-
       .v-step[data-v-7c9c03f0] {
         background: #002d53;
       }
@@ -702,7 +691,20 @@
       }
     </style>
 
-    <script>
+    <script
+      async
+      src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"
+    ></script>
+    <script
+      async
+      src="https://unpkg.com/vue-cookies@1.7.3/vue-cookies.js"
+    ></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+
+    <script src="https://unpkg.com/vue-tour@1.5.0/dist/vue-tour.umd.min.js"></script>
+    <script defer>
       Vue.use(["vue-tour"]);
 
       const areaUrl = "https://areaclientes.gestiongroup.es";
@@ -738,7 +740,7 @@
               phone: "",
             },
             userErrors: {},
-            steps: [
+            tourSteps: [
               {
                 target: "#v-step-company",
                 header: {
@@ -792,8 +794,6 @@
           };
         },
         mounted() {
-          this.launchTour();
-
           fetch(this.url + "/api/calculator/companies/")
             .then((response) => response.json())
             .then((companies) => (this.companies = companies));
