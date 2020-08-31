@@ -206,7 +206,7 @@
                               :suffix="el[0] === 'p' ? 'kw' : 'kW/h'"
                               :label="(el[0] === 'p' ? 'Potencia' : 'Consumo') + ' P' + el[1]"
                               :name="'P' + el[1]"
-                              :error-messages="el === 'p1' ? potenciaErrors : errorMessages[el]"
+                              :error-messages="el === 'p1' ? potenciaErrors || errorMessages[el] : errorMessages[el]"
                               :hint="el[0] === 'p' ? pHint : cHint"
                             >
                             </v-text-field>
