@@ -1,946 +1,938 @@
-<!DOCTYPE html>
-<!--suppress HtmlUnknownTag, JSUnresolvedLibraryURL -->
-<html xml:lang="es" lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui"
-    />
-    <title>Comparador</title>
-    <link
-      href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900"
-      rel="stylesheet"
-    />
-    <link
-      href="https://cdn.jsdelivr.net/npm/@mdi/font@5.x/css/materialdesignicons.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/vue-tour@1.5.0/dist/vue-tour.css"
-    />
-  </head>
-  <body>
-    <v-app id="app">
-      <v-main>
-        <v-container fluid class="fill-height" style="word-break: normal;">
-          <v-row justify="center" align="center" max-width="90%">
-            <v-col cols="12" sm="10" md="6">
-              <!-- calculator -->
-              <v-row v-show="show === 'calc'">
-                <v-col>
-                  <v-alert v-show="showResults && !offers.length" type="warning"
-                    >No hay ofertas
-                  </v-alert>
+    <!DOCTYPE html>
+    <!--suppress HtmlUnknownTag, JSUnresolvedLibraryURL -->
+    <html xml:lang="es" lang="es">
+      <head>
+        <meta charset="utf-8" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui"
+        />
+        <title>Comparador</title>
+        <link
+          href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900"
+          rel="stylesheet"
+        />
+        <link
+          href="https://cdn.jsdelivr.net/npm/@mdi/font@5.x/css/materialdesignicons.min.css"
+          rel="stylesheet"
+        />
+        <link
+          href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css"
+          rel="stylesheet"
+        />
+        <link
+          rel="stylesheet"
+          href="https://unpkg.com/vue-tour@1.5.0/dist/vue-tour.css"
+        />
+      </head>
+      <body>
+        <v-app id="app">
+          <v-main>
+            <v-container fluid class="fill-height" style="word-break: normal;">
+              <v-row justify="center" align="center" max-width="90%">
+                <v-col cols="12" sm="10" md="6">
+                  <!-- calculator -->
+                  <v-row v-show="show === 'calc'">
+                    <v-col>
+                      <v-alert v-show="showResults && !offers.length" type="warning"
+                        >No hay ofertas
+                      </v-alert>
 
-                  <v-data-table
-                    v-show="showResults && offers.length"
-                    :headers="[
-                                    {
-                                      value: 'company_logo',
-                                      sortable: false,
-                                      align: 'left',
-                                    },
-                                    {
-                                      text: 'Oferta',
-                                      value: 'id',
-                                    },
-                                    {
-                                      text: 'Comercializadora',
-                                      value: 'company_name',
-                                    },
-                                    {
-                                      text: 'Ahorro en factura',
-                                      value: 'profit',
-                                    },
-                                    {
-                                      text: 'Ahorro anual',
-                                      value: 'annual_total',
-                                    },
-                                    {
-                                      value: 'actions',
-                                      sortable: false,
-                                    },
-                                  ]"
-                    :items="offers"
-                    sort-by="profit"
-                    @click:row="getCalculations"
-                  >
-                    <template v-slot:[`item.company_logo`]="{ item }">
-                      <v-avatar width="100">
-                        <v-img
-                          :src="url + (item.company_logo || '/no-image.svg')"
-                        ></v-img>
-                      </v-avatar>
-                    </template>
-                  </v-data-table>
+                      <v-data-table
+                        v-show="showResults && offers.length"
+                        :headers="[
+                                        {
+                                          value: 'company_logo',
+                                          sortable: false,
+                                          align: 'left',
+                                        },
+                                        {
+                                          text: 'Oferta',
+                                          value: 'id',
+                                        },
+                                        {
+                                          text: 'Comercializadora',
+                                          value: 'company_name',
+                                        },
+                                        {
+                                          text: 'Ahorro en factura',
+                                          value: 'profit',
+                                        },
+                                        {
+                                          text: 'Ahorro anual',
+                                          value: 'annual_total',
+                                        },
+                                        {
+                                          value: 'actions',
+                                          sortable: false,
+                                        },
+                                      ]"
+                        :items="offers"
+                        sort-by="profit"
+                        @click:row="getCalculations"
+                      >
+                        <template v-slot:[`item.company_logo`]="{ item }">
+                          <v-avatar width="100">
+                            <v-img
+                              :src="url + (item.company_logo || '/no-image.svg')"
+                            ></v-img>
+                          </v-avatar>
+                        </template>
+                      </v-data-table>
 
-                  <v-card-text>
-                    <div class="text-right">
-                      <v-btn icon fab color="#307EC0" @click="launchTour">
-                        <v-icon x-large>mdi-help-circle-outline</v-icon>
-                      </v-btn>
-                    </div>
+                      <v-card-text>
+                        <div class="text-right">
+                          <v-btn icon fab color="#307EC0" @click="launchTour">
+                            <v-icon x-large>mdi-help-circle-outline</v-icon>
+                          </v-btn>
+                        </div>
 
-                    <v-form
-                      v-show="!showResults"
-                      novalidate
-                      @submit.prevent="calculate"
-                    >
-                      <v-row class="justify-space-between">
-                        <v-col xl="4" lg="4" cols="10">
-                          <v-select
-                            :menu-props="{ top: true }"
-                            id="v-step-company"
-                            v-model="form.company"
-                            autofocus
-                            :items="companies"
-                            :loading="loading"
-                            :error-messages="errorMessages.company"
-                            item-text="name"
-                            item-value="id"
-                            label="Comercializadora actual"
-                            hint="Elija la empresa comercializadora con la que está actualmente."
-                          >
-                            <template v-slot:selection="{ item }">
-                              <v-chip small label>
-                                <v-avatar>
-                                  <v-img
-                                    v-if="item['logo']"
-                                    :src="item['logo']"
-                                  ></v-img>
-                                  <v-icon v-else>mdi-cancel</v-icon>
-                                </v-avatar>
-                                {{ item.name }}
-                              </v-chip>
+                        <v-form
+                          v-show="!showResults"
+                          novalidate
+                          @submit.prevent="calculate"
+                        >
+                          <v-row class="justify-space-between">
+                            <v-col xl="4" lg="4" cols="10">
+                              <v-select
+                                :menu-props="{ top: true }"
+                                id="v-step-company"
+                                v-model="form.company"
+                                autofocus
+                                :items="companies"
+                                :loading="loading"
+                                :error-messages="errorMessages.company"
+                                item-text="name"
+                                item-value="id"
+                                label="Comercializadora actual"
+                                hint="Elija la empresa comercializadora con la que está actualmente."
+                              >
+                                <template v-slot:selection="{ item }">
+                                  <v-chip small label>
+                                    <v-avatar>
+                                      <v-img
+                                        v-if="item['logo']"
+                                        :src="item['logo']"
+                                      ></v-img>
+                                      <v-icon v-else>mdi-cancel</v-icon>
+                                    </v-avatar>
+                                    {{ item.name }}
+                                  </v-chip>
+                                </template>
+
+                                <template v-slot:item="{ item }">
+                                  <v-row align="center">
+                                    <v-col class="flex-grow-0">
+                                      <v-avatar>
+                                        <v-img
+                                          v-if="item['logo']"
+                                          :src="item['logo']"
+                                        >
+                                        </v-img>
+                                        <v-icon v-else>
+                                          mdi-cancel
+                                        </v-icon>
+                                      </v-avatar>
+                                    </v-col>
+                                    <v-col>{{ item.name }}</v-col>
+                                  </v-row>
+                                </template>
+                              </v-select>
+                            </v-col>
+
+                            <v-col xl="3" lg="3" cols="10">
+                              <v-select
+                                :menu-props="{ top: true }"
+                                id="v-step-tarif"
+                                v-model="form.tarif"
+                                :items="tarifs"
+                                :loading="loading"
+                                :error-messages="errorMessages.tarif"
+                                label="Tarifa"
+                                hint="Elija su tarifa o peaje de acceso. Está información puede obtenerse en su factura."
+                              >
+                              </v-select>
+                            </v-col>
+
+                            <v-col xl="3" lg="3" cols="10">
+                              <v-select
+                                id="v-step-client-type"
+                                v-model="form.client_type"
+                                :items="[{ text: 'Particular', value: '0'}, { text: 'Juridico', value: '1'}]"
+                                :error-messages="errorMessages.client_type"
+                                label="Tipo de cliente"
+                                hint="Elija el perfil de cliente más adecuado para usted."
+                              >
+                              </v-select>
+                            </v-col>
+
+                            <v-col xl="5" lg="5" cols="10">
+                              <v-text-field
+                                id="v-step-period"
+                                v-model="form.period"
+                                label="Periodo"
+                                name="period"
+                                suffix="dias"
+                                :error-messages="errorMessages.period"
+                                hint="En este campo, ingrese el período (en días) por el cual se le factura. Está información puede obtenerse en su factura."
+                              >
+                              </v-text-field>
+                            </v-col>
+
+                            <v-col xl="6" lg="6" cols="10">
+                              <v-text-field
+                                id="v-step-current-price"
+                                v-model="form.current_price"
+                                label="Cadidad de pago en la factura actual"
+                                name="current_price"
+                                suffix="€"
+                                :error-messages="errorMessages.current_price"
+                              ></v-text-field>
+                            </v-col>
+
+                            <template
+                              v-for="el in ['p1', 'c1', 'p2', 'c2', 'p3', 'c3']"
+                            >
+                              <v-col
+                                v-show="showInput(el[0], el[1])"
+                                xl="5"
+                                lg="5"
+                                cols="10"
+                                :key="el"
+                              >
+                                <v-text-field
+                                  :id="`v-step-${el}`"
+                                  v-model="form[el]"
+                                  :suffix="el[0] === 'p' ? 'kw' : 'kW/h'"
+                                  :label="(el[0] === 'p' ? 'Potencia' : 'Consumo') + ' P' + el[1]"
+                                  :name="'P' + el[1]"
+                                  :error-messages="el === 'p1' ? potenciaErrors || errorMessages[el] : errorMessages[el]"
+                                  :hint="el[0] === 'p' ? pHint : cHint"
+                                >
+                                </v-text-field>
+                              </v-col>
                             </template>
+                          </v-row>
 
-                            <template v-slot:item="{ item }">
-                              <v-row align="center">
-                                <v-col class="flex-grow-0">
-                                  <v-avatar>
-                                    <v-img
-                                      v-if="item['logo']"
-                                      :src="item['logo']"
+                          <br />
+                          <v-row class="text-center">
+                            <v-col>
+                              <v-btn
+                                :loading="loading"
+                                type="submit"
+                                color="#004680"
+                                dark
+                              >
+                                Comparar
+                                <v-icon right>
+                                  mdi-check
+                                </v-icon>
+                              </v-btn>
+                            </v-col>
+                          </v-row>
+                        </v-form>
+                      </v-card-text>
+                    </v-col>
+                  </v-row>
+
+                  <!-- calc details -->
+                  <v-row v-if="show === 'detail'" class="pa-1">
+                    <v-col>
+                      <div class="d-flex flex-column justify-center">
+                        <p class="text-center headline">
+                          Oferta {{ offer.id }}
+                        </p>
+
+                        <v-row class="align-center justify-center">
+                          <v-col class="flex-grow-0">
+                            <v-img
+                              max-height="250"
+                              max-width="500"
+                              :src="url + (offer.company_logo || '/no-image.svg')"
+                              :alt="offer.company_logo"
+                            ></v-img>
+                          </v-col>
+                          <v-col>
+                            <v-simple-table>
+                              <template v-slot:default>
+                                <tr>
+                                  <td
+                                    colspan="2"
+                                    class="font-weight-light font-italic text-left"
+                                    style="padding-bottom: 2em;"
+                                  >
+                                    {{ offer.description }}
+                                  </td>
+                                </tr>
+
+                                <tr>
+                                  <td>Tarifa:</td>
+                                  <td>{{ offer.tarif }}</td>
+                                </tr>
+
+                                <tr>
+                                  <td>Tipo de oferta:</td>
+                                  <td>
+                                    {{ offer.client_type === 0 ? 'Particular' :
+                                    'Juridico' }}
+                                  </td>
+                                </tr>
+
+                                <tr>
+                                  <td>Tipo de precio:</td>
+                                  <td>{{ offer.is_price_permanent }}</td>
+                                </tr>
+
+                                <br />
+
+                                <tr>
+                                  <td :rowspan="powers.length + 1">
+                                    Precio por potencia:
+                                  </td>
+                                </tr>
+
+                                <tr v-for="power in powers" :key="power.value">
+                                  <td>{{ power.text }}: {{ power.value }} €</td>
+                                </tr>
+
+                                <br />
+
+                                <tr>
+                                  <td :rowspan="consumptions.length + 1">
+                                    Precio por consumo:
+                                  </td>
+                                </tr>
+                                <tr
+                                  v-for="consumption in consumptions"
+                                  :key="consumption.value"
+                                >
+                                  <td>
+                                    {{ consumption.text }}: {{ consumption.value }}
+                                    €
+                                  </td>
+                                </tr>
+                              </template>
+                            </v-simple-table>
+                          </v-col>
+                        </v-row>
+                      </div>
+
+                      <v-card
+                        v-if="calculations.tax"
+                        flat
+                        min-width="45%"
+                        max-width="750px"
+                      >
+                        <v-card-title style="padding-bottom: 0;">
+                          Termino de potencia
+                        </v-card-title>
+
+                        <v-card-text style="line-height: 2px;">
+                          <v-row
+                            v-for="number in [1, 2, 3]"
+                            :key="number"
+                            align="center"
+                          >
+                            <div
+                              v-if="calculations[`c_st_p${number}`]"
+                              class="d-flex"
+                            >
+                              <div class="popusk"></div>
+                              <v-col class="font-weight-bold flex-grow-0"
+                                >P{{ number }}
+                              </v-col>
+                              <div class="popusk"></div>
+                              <v-col style="font-size: 12px;"
+                                >{{ calculations[`c_st_p${number}`] }}
+                              </v-col>
+                            </div>
+                          </v-row>
+                        </v-card-text>
+
+                        <v-card-title style="padding-bottom: 0;">
+                          Termino de energia
+                        </v-card-title>
+
+                        <v-card-text style="line-height: 2px;">
+                          <v-row
+                            v-for="number in [1, 2, 3]"
+                            :key="number"
+                            align="center"
+                          >
+                            <div
+                              v-if="calculations[`c_st_p${number}`]"
+                              class="d-flex"
+                            >
+                              <div class="popusk"></div>
+                              <v-col
+                                class="font-weight-bold flex-grow-0 text-no-wrap"
+                                >P{{ number }}
+                              </v-col>
+                              <div class="popusk"></div>
+                              <v-col class="text-no-wrap" style="font-size: 12px;">
+                                {{ calculations[`c_st_c${number}`] }}
+                              </v-col>
+                            </div>
+                          </v-row>
+                        </v-card-text>
+
+                        <v-card-title style="padding-bottom: 0;">
+                          Otros conceptos
+                        </v-card-title>
+
+                        <v-card-text style="line-height: 2px;">
+                          <v-row align="center">
+                            <div class="popusk"></div>
+                            <v-col class="popusk-2 font-weight-bold text-no-wrap">
+                              Impuesto eléctrico ({{ calculations.tax.percent }}%)
+                            </v-col>
+                            <v-col style="font-size: 12px;">
+                              {{ calculations.tax.value }}
+                            </v-col>
+                          </v-row>
+
+                          <v-row align="center">
+                            <div class="popusk"></div>
+                            <v-col
+                              class="popusk-2 flex-shrink-0 font-weight-bold text-no-wrap"
+                            >
+                              Alquiler de equipos
+                            </v-col>
+                            <v-col class="text-no-wrap" style="font-size: 12px;">
+                              {{ calculations.rental }}
+                            </v-col>
+                          </v-row>
+
+                          <v-row align="center">
+                            <div class="popusk"></div>
+                            <v-col class="popusk-2 font-weight-bold text-no-wrap">
+                              IVA general ({{ calculations.iva.percent }}%)
+                            </v-col>
+                            <v-col class="text-no-wrap" style="font-size: 12px;">
+                              {{ calculations.iva.value }}
+                            </v-col>
+                          </v-row>
+                        </v-card-text>
+
+                        <v-divider></v-divider>
+
+                        <div class="text-h6 text-center">
+                          Total factura: {{ calculations.total }}
+                        </div>
+
+                        <v-card-text
+                          class="text-center overline red--text font-weight-bold"
+                          style="font-size: 18px !important;"
+                        >
+                          <p>
+                            Paga actualmente: {{ calculations.current_price }} €
+                          </p>
+                        </v-card-text>
+
+                        <v-card-text>
+                          <v-row class="justify-center">
+                            <v-col>
+                              <v-alert border="left" color="#004680" dark>
+                                <div
+                                  class="text-uppercase text-center font-weight-thin"
+                                  style="font-size: 22px !important;"
+                                >
+                                  <p>
+                                    Ahorro en cada factura
+                                  </p>
+                                  <p>
+                                    <span class="font-weight-bold"
+                                      >{{ calculations.profit }} ({{
+                                      calculations.profit_percent }}%)</span
                                     >
-                                    </v-img>
-                                    <v-icon v-else>
-                                      mdi-cancel
-                                    </v-icon>
-                                  </v-avatar>
-                                </v-col>
-                                <v-col>{{ item.name }}</v-col>
-                              </v-row>
-                            </template>
-                          </v-select>
-                        </v-col>
+                                  </p>
+                                  <p>
+                                    Ahorro en anual
+                                  </p>
+                                  <p>
+                                    <span class="font-weight-bold"
+                                      >{{ calculations.annual_total }}</span
+                                    >
+                                  </p>
+                                </div>
+                              </v-alert>
+                            </v-col>
+                          </v-row>
+                        </v-card-text>
 
-                        <v-col xl="3" lg="3" cols="10">
-                          <v-select
-                            :menu-props="{ top: true }"
-                            id="v-step-tarif"
-                            v-model="form.tarif"
-                            :items="tarifs"
-                            :loading="loading"
-                            :error-messages="errorMessages.tarif"
-                            label="Tarifa"
-                            hint="Elija su tarifa o peaje de acceso. Está información puede obtenerse en su factura."
-                          >
-                          </v-select>
-                        </v-col>
+                        <v-card-text>
+                          <v-row align="center" justify="center">
+                            <v-col>
+                              <v-hover>
+                                <template v-slot="{ hover }">
+                                  <v-card
+                                    style="border: 5px solid green; color: green;"
+                                    :elevation="hover ? 24 : 2"
+                                    @click="show = 'assis'"
+                                  >
+                                    <v-card-title class="text-h5 text-no-wrap"
+                                      >Siguente
+                                    </v-card-title>
+                                  </v-card>
+                                </template>
+                              </v-hover>
+                            </v-col>
 
-                        <v-col xl="3" lg="3" cols="10">
-                          <v-select
-                            id="v-step-client-type"
-                            v-model="form.client_type"
-                            :items="[{ text: 'Particular', value: '0'}, { text: 'Juridico', value: '1'}]"
-                            :error-messages="errorMessages.client_type"
-                            label="Tipo de cliente"
-                            hint="Elija el perfil de cliente más adecuado para usted."
-                          >
-                          </v-select>
-                        </v-col>
+                            <v-col>
+                              <v-hover>
+                                <template v-slot="{ hover }">
+                                  <v-card
+                                    dark
+                                    style="border: 5px solid red;"
+                                    color="success darken-2"
+                                    :elevation="hover ? 24 : 2"
+                                    @click="show = 'online'"
+                                  >
+                                    <v-card-title class="text-h5 text-no-wrap"
+                                      >Obtener una consulta
+                                    </v-card-title>
+                                  </v-card>
+                                </template>
+                              </v-hover>
+                            </v-col>
+                          </v-row>
+                        </v-card-text>
+                      </v-card>
+                    </v-col>
+                  </v-row>
 
-                        <v-col xl="5" lg="5" cols="10">
+                  <!-- contract online -->
+                  <br />
+                  <br />
+
+                  <v-row
+                    v-if="(show === 'calc' && !showResults) || [ 'online', 'assis'].includes(show)"
+                  >
+                    <v-col>
+                      <p
+                        v-if="withFactura"
+                        class="text-center"
+                        style="font-size: 42px; color: #004680;"
+                      >
+                        No encuentras los datos solicitados?
+                      </p>
+
+                      <p
+                        v-if="withFactura"
+                        class="text-center"
+                        style="color: #004680;"
+                      >
+                        Envianos un duplicado o foto de su factura y uno de nuestros
+                        agentes especializados le enviara el estudio detallando toda
+                        la informacion sobre su estado acual y propuesta de ahorro.
+                      </p>
+
+                      <v-form @submit.prevent="contractOnline">
+                        <div style="max-width: 500px;" class="mx-auto">
                           <v-text-field
-                            id="v-step-period"
-                            v-model="form.period"
-                            label="Periodo"
-                            name="period"
-                            suffix="dias"
-                            :error-messages="errorMessages.period"
-                            hint="En este campo, ingrese el período (en días) por el cual se le factura. Está información puede obtenerse en su factura."
+                            v-model="user.first_name"
+                            label="Nombre"
+                            :autofocus="show !== 'calc'"
+                            :error-messages="userErrors.first_name"
                           >
                           </v-text-field>
-                        </v-col>
 
-                        <v-col xl="6" lg="6" cols="10">
                           <v-text-field
-                            id="v-step-current-price"
-                            v-model="form.current_price"
-                            label="Cadidad de pago en la factura actual"
-                            name="current_price"
-                            suffix="€"
-                            :error-messages="errorMessages.current_price"
+                            v-model="user.phone"
+                            label="Telefono"
+                            type="tel"
+                            :error-messages="userErrors.phone"
                           ></v-text-field>
-                        </v-col>
 
-                        <template
-                          v-for="el in ['p1', 'c1', 'p2', 'c2', 'p3', 'c3']"
-                        >
-                          <v-col
-                            v-show="showInput(el[0], el[1])"
-                            xl="5"
-                            lg="5"
-                            cols="10"
-                            :key="el"
+                          <v-text-field
+                            label="Email"
+                            v-model="user.email"
+                            :error-messages="userErrors.email"
                           >
-                            <v-text-field
-                              :id="`v-step-${el}`"
-                              v-model="form[el]"
-                              :suffix="el[0] === 'p' ? 'kw' : 'kW/h'"
-                              :label="(el[0] === 'p' ? 'Potencia' : 'Consumo') + ' P' + el[1]"
-                              :name="'P' + el[1]"
-                              :error-messages="el === 'p1' ? potenciaErrors || errorMessages[el] : errorMessages[el]"
-                              :hint="el[0] === 'p' ? pHint : cHint"
-                            >
-                            </v-text-field>
-                          </v-col>
-                        </template>
-                      </v-row>
+                          </v-text-field>
 
-                      <br />
-                      <v-row class="text-center">
-                        <v-col>
-                          <v-btn
-                            :loading="loading"
-                            type="submit"
-                            color="#004680"
-                            dark
+                          <v-file-input
+                            v-if="moreFields || withFactura"
+                            v-model="user.factura"
+                            label="Foto factura actual (anverso)"
+                            accept="image/*"
+                            :error-messages="userErrors.factura"
+                          ></v-file-input>
+
+                          <v-file-input
+                            v-if="moreFields || withFactura"
+                            v-model="user.factura_1"
+                            label="Foto factura actual (reverso)"
+                            accept="image/*"
+                            :error-messages="userErrors.factura_1"
+                          ></v-file-input>
+
+                          <v-file-input
+                            v-if="moreFields"
+                            v-model="user.dni1"
+                            label="Foto DNI (anverso)"
+                            accept="image/*"
+                            :error-messages="userErrors.dni1"
+                          ></v-file-input>
+
+                          <v-file-input
+                            v-if="moreFields"
+                            v-model="user.dni2"
+                            label="Foto DNI (reverso)"
+                            accept="image/*"
+                            :error-messages="userErrors.dni2"
+                          ></v-file-input>
+
+                          <v-text-field
+                            v-if="moreFields"
+                            v-model="user.iban"
+                            label="IBAN"
+                            :error-messages="userErrors.iban"
+                          ></v-text-field>
+
+                          <v-checkbox
+                            v-model="privacyAccepted"
+                            :success="privacyAccepted"
+                            :error="!privacyAccepted"
+                            hint="Sus datos personales se utilizarán para simplificar su trabajo con el sitio, controlar el acceso a su cuenta y para otros fines descritos en nuestra política de privacidad."
+                            label="Estoy de acuerdo"
+                            persistent-hint
                           >
-                            Comparar
-                            <v-icon right>
-                              mdi-check
-                            </v-icon>
+                            <template v-slot:message>
+                              <span
+                                >Sus datos personales se utilizarán para simplificar
+                                su trabajo con el sitio, controlar el acceso a su
+                                cuenta y para otros fines descritos en nuestra</span
+                              >
+                              <a
+                                target="_blank"
+                                href="https://gestiongroup.es/privacy_policy"
+                              >
+                                política de privacidad.
+                              </a>
+                            </template>
+                          </v-checkbox>
+                        </div>
+
+                        <br />
+
+                        <div class="text-center">
+                          <v-btn type="submit" :disabled="!privacyAccepted">
+                            Enviar
                           </v-btn>
-                        </v-col>
-                      </v-row>
-                    </v-form>
-                  </v-card-text>
-                </v-col>
-              </v-row>
-
-              <!-- calc details -->
-              <v-row v-if="show === 'detail'" class="pa-1">
-                <v-col>
-                  <div class="d-flex flex-column justify-center">
-                    <p class="text-center headline">
-                      Oferta {{ offer.id }}
-                    </p>
-
-                    <v-row class="align-center justify-center">
-                      <v-col class="flex-grow-0">
-                        <v-img
-                          max-height="250"
-                          max-width="500"
-                          :src="url + (offer.company_logo || '/no-image.svg')"
-                          :alt="offer.company_logo"
-                        ></v-img>
-                      </v-col>
-                      <v-col>
-                        <v-simple-table>
-                          <template v-slot:default>
-                            <tr>
-                              <td
-                                colspan="2"
-                                class="font-weight-light font-italic text-left"
-                                style="padding-bottom: 2em;"
-                              >
-                                {{ offer.description }}
-                              </td>
-                            </tr>
-
-                            <tr>
-                              <td>Tarifa:</td>
-                              <td>{{ offer.tarif }}</td>
-                            </tr>
-
-                            <tr>
-                              <td>Tipo de oferta:</td>
-                              <td>
-                                {{ offer.client_type === 0 ? 'Particular' :
-                                'Juridico' }}
-                              </td>
-                            </tr>
-
-                            <tr>
-                              <td>Tipo de precio:</td>
-                              <td>{{ offer.is_price_permanent }}</td>
-                            </tr>
-
-                            <br />
-
-                            <tr>
-                              <td :rowspan="powers.length + 1">
-                                Precio por potencia:
-                              </td>
-                            </tr>
-
-                            <tr v-for="power in powers" :key="power.value">
-                              <td>{{ power.text }}: {{ power.value }} €</td>
-                            </tr>
-
-                            <br />
-
-                            <tr>
-                              <td :rowspan="consumptions.length + 1">
-                                Precio por consumo:
-                              </td>
-                            </tr>
-                            <tr
-                              v-for="consumption in consumptions"
-                              :key="consumption.value"
-                            >
-                              <td>
-                                {{ consumption.text }}: {{ consumption.value }}
-                                €
-                              </td>
-                            </tr>
-                          </template>
-                        </v-simple-table>
-                      </v-col>
-                    </v-row>
-                  </div>
-
-                  <v-card
-                    v-if="calculations.tax"
-                    flat
-                    min-width="45%"
-                    max-width="750px"
-                  >
-                    <v-card-title style="padding-bottom: 0;">
-                      Termino de potencia
-                    </v-card-title>
-
-                    <v-card-text style="line-height: 2px;">
-                      <v-row
-                        v-for="number in [1, 2, 3]"
-                        :key="number"
-                        align="center"
-                      >
-                        <div
-                          v-if="calculations[`c_st_p${number}`]"
-                          class="d-flex"
-                        >
-                          <div class="popusk"></div>
-                          <v-col class="font-weight-bold flex-grow-0"
-                            >P{{ number }}
-                          </v-col>
-                          <div class="popusk"></div>
-                          <v-col style="font-size: 12px;"
-                            >{{ calculations[`c_st_p${number}`] }}
-                          </v-col>
                         </div>
-                      </v-row>
-                    </v-card-text>
+                      </v-form>
+                    </v-col>
+                  </v-row>
 
-                    <v-card-title style="padding-bottom: 0;">
-                      Termino de energia
-                    </v-card-title>
-
-                    <v-card-text style="line-height: 2px;">
-                      <v-row
-                        v-for="number in [1, 2, 3]"
-                        :key="number"
-                        align="center"
+                  <!--    back    -->
+                  <v-row>
+                    <v-spacer></v-spacer>
+                    <v-col class="text-center">
+                      <v-btn
+                        v-if="show === 'calc' ? showResults : true"
+                        rounded
+                        outlined
+                        color="#004680"
+                        @click="back"
                       >
-                        <div
-                          v-if="calculations[`c_st_p${number}`]"
-                          class="d-flex"
-                        >
-                          <div class="popusk"></div>
-                          <v-col
-                            class="font-weight-bold flex-grow-0 text-no-wrap"
-                            >P{{ number }}
-                          </v-col>
-                          <div class="popusk"></div>
-                          <v-col class="text-no-wrap" style="font-size: 12px;">
-                            {{ calculations[`c_st_c${number}`] }}
-                          </v-col>
-                        </div>
-                      </v-row>
-                    </v-card-text>
-
-                    <v-card-title style="padding-bottom: 0;">
-                      Otros conceptos
-                    </v-card-title>
-
-                    <v-card-text style="line-height: 2px;">
-                      <v-row align="center">
-                        <div class="popusk"></div>
-                        <v-col class="popusk-2 font-weight-bold text-no-wrap">
-                          Impuesto eléctrico ({{ calculations.tax.percent }}%)
-                        </v-col>
-                        <v-col style="font-size: 12px;">
-                          {{ calculations.tax.value }}
-                        </v-col>
-                      </v-row>
-
-                      <v-row align="center">
-                        <div class="popusk"></div>
-                        <v-col
-                          class="popusk-2 flex-shrink-0 font-weight-bold text-no-wrap"
-                        >
-                          Alquiler de equipos
-                        </v-col>
-                        <v-col class="text-no-wrap" style="font-size: 12px;">
-                          {{ calculations.rental }}
-                        </v-col>
-                      </v-row>
-
-                      <v-row align="center">
-                        <div class="popusk"></div>
-                        <v-col class="popusk-2 font-weight-bold text-no-wrap">
-                          IVA general ({{ calculations.iva.percent }}%)
-                        </v-col>
-                        <v-col class="text-no-wrap" style="font-size: 12px;">
-                          {{ calculations.iva.value }}
-                        </v-col>
-                      </v-row>
-                    </v-card-text>
-
-                    <v-divider></v-divider>
-
-                    <div class="text-h6 text-center">
-                      Total factura: {{ calculations.total }}
-                    </div>
-
-                    <v-card-text
-                      class="text-center overline red--text font-weight-bold"
-                      style="font-size: 18px !important;"
-                    >
-                      <p>
-                        Paga actualmente: {{ calculations.current_price }} €
-                      </p>
-                    </v-card-text>
-
-                    <v-card-text>
-                      <v-row class="justify-center">
-                        <v-col>
-                          <v-alert border="left" color="#004680" dark>
-                            <div
-                              class="text-uppercase text-center font-weight-thin"
-                              style="font-size: 22px !important;"
-                            >
-                              <p>
-                                Ahorro en cada factura
-                              </p>
-                              <p>
-                                <span class="font-weight-bold"
-                                  >{{ calculations.profit }} ({{
-                                  calculations.profit_percent }}%)</span
-                                >
-                              </p>
-                              <p>
-                                Ahorro en anual
-                              </p>
-                              <p>
-                                <span class="font-weight-bold"
-                                  >{{ calculations.annual_total }}</span
-                                >
-                              </p>
-                            </div>
-                          </v-alert>
-                        </v-col>
-                      </v-row>
-                    </v-card-text>
-
-                    <v-card-text>
-                      <v-row align="center" justify="center">
-                        <v-col>
-                          <v-hover>
-                            <template v-slot="{ hover }">
-                              <v-card
-                                style="border: 5px solid green; color: green;"
-                                :elevation="hover ? 24 : 2"
-                                @click="show = 'assis'"
-                              >
-                                <v-card-title class="text-h5 text-no-wrap"
-                                  >Contractar online
-                                </v-card-title>
-                              </v-card>
-                            </template>
-                          </v-hover>
-                        </v-col>
-
-                        <v-col>
-                          <v-hover>
-                            <template v-slot="{ hover }">
-                              <v-card
-                                dark
-                                style="border: 5px solid red;"
-                                color="success darken-2"
-                                :elevation="hover ? 24 : 2"
-                                @click="show = 'online'"
-                              >
-                                <v-card-title class="text-h5 text-no-wrap"
-                                  >Obtener una consulta
-                                </v-card-title>
-                              </v-card>
-                            </template>
-                          </v-hover>
-                        </v-col>
-                      </v-row>
-                    </v-card-text>
-                  </v-card>
-                </v-col>
-              </v-row>
-
-              <!-- contract online -->
-              <br />
-              <br />
-
-              <v-row
-                v-if="(show === 'calc' && !showResults) || [ 'online', 'assis'].includes(show)"
-              >
-                <v-col>
-                  <p
-                    v-if="withFactura"
-                    class="text-center"
-                    style="font-size: 42px; color: #004680;"
-                  >
-                    No encuentras los datos solicitados?
-                  </p>
-
-                  <p
-                    v-else
-                    class="text-center"
-                    style="font-size: 30px; color: #004680;"
-                  >
-                    Contractar {{ moreFields ? 'online' : 'con asistente' }}
-                  </p>
-
-                  <p
-                    v-if="withFactura"
-                    class="text-center"
-                    style="color: #004680;"
-                  >
-                    Envianos un duplicado o foto de su factura y uno de nuestros
-                    agentes especializados le enviara el estudio detallando toda
-                    la informacion sobre su estado acual y propuesta de ahorro.
-                  </p>
-
-                  <v-form @submit.prevent="contractOnline">
-                    <div style="max-width: 500px;" class="mx-auto">
-                      <v-text-field
-                        v-model="user.first_name"
-                        label="Nombre"
-                        :autofocus="show !== 'calc'"
-                        :error-messages="userErrors.first_name"
-                      >
-                      </v-text-field>
-
-                      <v-text-field
-                        v-model="user.phone"
-                        label="Telefono"
-                        type="tel"
-                        :error-messages="userErrors.phone"
-                      ></v-text-field>
-
-                      <v-text-field
-                        label="Email"
-                        v-model="user.email"
-                        :error-messages="userErrors.email"
-                      >
-                      </v-text-field>
-
-                      <v-file-input
-                        v-if="moreFields || withFactura"
-                        v-model="user.factura"
-                        label="Foto factura actual (anverso)"
-                        accept="image/*"
-                        :error-messages="userErrors.factura"
-                      ></v-file-input>
-
-                      <v-file-input
-                        v-if="moreFields || withFactura"
-                        v-model="user.factura_1"
-                        label="Foto factura actual (reverso)"
-                        accept="image/*"
-                        :error-messages="userErrors.factura_1"
-                      ></v-file-input>
-
-                      <v-file-input
-                        v-if="moreFields"
-                        v-model="user.dni1"
-                        label="Foto DNI (anverso)"
-                        accept="image/*"
-                        :error-messages="userErrors.dni1"
-                      ></v-file-input>
-
-                      <v-file-input
-                        v-if="moreFields"
-                        v-model="user.dni2"
-                        label="Foto DNI (reverso)"
-                        accept="image/*"
-                        :error-messages="userErrors.dni2"
-                      ></v-file-input>
-
-                      <v-text-field
-                        v-if="moreFields"
-                        v-model="user.iban"
-                        label="IBAN"
-                        :error-messages="userErrors.iban"
-                      ></v-text-field>
-
-                      <v-checkbox
-                        v-model="privacyAccepted"
-                        :success="privacyAccepted"
-                        :error="!privacyAccepted"
-                        hint="Sus datos personales se utilizarán para simplificar su trabajo con el sitio, controlar el acceso a su cuenta y para otros fines descritos en nuestra política de privacidad."
-                        label="Estoy de acuerdo"
-                        persistent-hint
-                      >
-                        <template v-slot:message>
-                          <span
-                            >Sus datos personales se utilizarán para simplificar
-                            su trabajo con el sitio, controlar el acceso a su
-                            cuenta y para otros fines descritos en nuestra</span
-                          >
-                          <a
-                            target="_blank"
-                            href="https://gestiongroup.es/privacy_policy"
-                          >
-                            política de privacidad.
-                          </a>
-                        </template>
-                      </v-checkbox>
-                    </div>
-
-                    <br />
-
-                    <div class="text-center">
-                      <v-btn type="submit" :disabled="!privacyAccepted">
-                        Contractar
+                        Atrás
+                        <v-icon>mdi-keyboard-return</v-icon>
                       </v-btn>
-                    </div>
-                  </v-form>
+                    </v-col>
+                    <v-spacer></v-spacer>
+                  </v-row>
                 </v-col>
               </v-row>
 
-              <!--    back    -->
-              <v-row>
-                <v-spacer></v-spacer>
-                <v-col class="text-center">
-                  <v-btn
-                    v-if="show === 'calc' ? showResults : true"
-                    rounded
-                    outlined
-                    color="#004680"
-                    @click="back"
-                  >
-                    Atrás
-                    <v-icon>mdi-keyboard-return</v-icon>
-                  </v-btn>
-                </v-col>
-                <v-spacer></v-spacer>
-              </v-row>
-            </v-col>
-          </v-row>
+              <v-tour
+                name="comparadorTour"
+                :steps="tourSteps"
+                :options="{
+              labels: {
+                buttonSkip: 'Cerrar',
+                buttonPrevious: 'Atras',
+                buttonNext: 'Siguiente',
+                buttonStop: 'Final'
+              }}"
+              ></v-tour>
+            </v-container>
+          </v-main>
+        </v-app>
 
-          <v-tour
-            name="comparadorTour"
-            :steps="tourSteps"
-            :options="{
-          labels: {
-            buttonSkip: 'Cerrar',
-            buttonPrevious: 'Atras',
-            buttonNext: 'Siguiente',
-            buttonStop: 'Final'
-          }}"
-          ></v-tour>
-        </v-container>
-      </v-main>
-    </v-app>
-
-    <style>
-      .popusk {
-        width: 2em;
-      }
-      .popusk-2 {
-        flex-grow: 1;
-      }
-      @media only screen and (max-width: 768px) {
-        .popusk {
-          width: 0;
-        }
-        .popusk-2 {
-          flex-grow: 3;
-        }
-      }
-      .v-step[data-v-7c9c03f0] {
-        background: #002d53;
-      }
-      .v-step__header[data-v-7c9c03f0] {
-        background-color: #183f60;
-      }
-    </style>
-
-    <script
-      async
-      src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"
-    ></script>
-    <script
-      async
-      src="https://unpkg.com/vue-cookies@1.7.3/vue-cookies.js"
-    ></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
-
-    <script src="https://unpkg.com/vue-tour@1.5.0/dist/vue-tour.umd.min.js"></script>
-    <script defer>
-      Vue.use(["vue-tour"]);
-
-      const areaUrl = "https://areaclientes.gestiongroup.es";
-      const mediaUrl = areaUrl + "/media/hints";
-      const pHint =
-        "Ingrese aquí la potencia contratada en kw. Está información puede obtenerse en su factura.";
-      const cHint =
-        "Ingrese aquí la energía consumida en kw para cada período. Está información puede obtenerse en su factura.";
-
-      // noinspection JSUnresolvedFunction
-      new Vue({
-        el: "#app",
-        vuetify: new Vuetify(),
-        data() {
-          return {
-            pHint: pHint,
-            cHint: cHint,
-            url: areaUrl,
-            privacyAccepted: false,
-            calculations: {},
-            offer: null,
-            showResults: false,
-            show: "calc",
-            loading: false,
-            offers: [],
-            form: {
-              with_calculations: true,
-            },
-            errorMessages: {},
-            companies: [],
-            tarifs: [],
-            user: {
-              phone: "",
-            },
-            userErrors: {},
-            tourSteps: [
-              {
-                target: "#v-step-company",
-                header: {
-                  title: "Comercializadora actual",
-                },
-                content: `Elija la empresa comercializadora con la que está actualmente. <br> <img style="max-width: 100%;"  src="${mediaUrl}/company.webp">`,
-              },
-              {
-                target: "#v-step-tarif",
-                header: {
-                  title: "Tarifa",
-                },
-                content: `Elige tu tarifa o peaje de acceso. <br> <video style="max-width: 100%;" autoplay loop muted playsinline src="${mediaUrl}/tarif.webm"></video>`,
-              },
-              {
-                target: "#v-step-client-type",
-                header: {
-                  title: "Tipo de cliente",
-                },
-                content: `Elija el perfil de cliente más adecuado para usted. <br> <img style="max-width: 100%;"  src="${mediaUrl}/client_type.jpg">`,
-              },
-              {
-                target: "#v-step-period",
-                header: {
-                  title: "Periodo",
-                },
-                content: `En este campo, ingrese el período (en días) por el cual se le factura. Está información puede obtenerse en su factura. <br> <video style="max-width: 100%;" autoplay loop muted playsinline src="${mediaUrl}/period.webm"></video>`,
-              },
-              {
-                target: "#v-step-current-price",
-                header: {
-                  title: "Cadidad de pago en la factura actual",
-                },
-                content: `En este campo, ingrese el período (en días) por el cual se le factura. Está información puede obtenerse en su factura. <br> <video style="max-width: 100%;" autoplay loop muted playsinline src="${mediaUrl}/current_price.webm"></video>`,
-              },
-              {
-                target: "#v-step-p1",
-                header: {
-                  title: "Potencia",
-                },
-                content: `${pHint} <br> <video style="max-width: 100%;" autoplay loop muted playsinline src="${mediaUrl}/potencia.webm"></video>`,
-              },
-              {
-                target: "#v-step-c1",
-                header: {
-                  title: "Consumo",
-                },
-                content: `${cHint} <br> <video style="max-width: 100%;" autoplay loop muted playsinline src="${mediaUrl}/consumo.webm"></video>`,
-              },
-            ],
-          };
-        },
-        mounted() {
-          fetch(this.url + "/api/calculator/companies/")
-            .then((response) => response.json())
-            .then((companies) => (this.companies = companies));
-
-          fetch(this.url + "/api/calculator/tarifs/")
-            .then((response) => response.json())
-            .then((tarifs) => (this.tarifs = tarifs));
-        },
-        computed: {
-          potenciaErrors() {
-            if (!this.form.tarif || !this.form.p1) return null;
-            if (
-              (this.form.tarif.includes("2.0") && this.form.p1 > 10) ||
-              this.form.p1 <= 0
-            ) {
-              return ["Seleccione un valor de 1 kW a 10 kW"];
-            } else if (this.form.tarif.includes("2.1")) {
-              if (this.form.p1 > 15) {
-                return ["Seleccione un valor de 10 kW a 15 kW"];
-              } else if (this.form.p1 < 10) {
-                return ["Seleccione un valor de 10 kW a 15 kW"];
-              }
+        <style>
+          .popusk {
+            width: 2em;
+          }
+          .popusk-2 {
+            flex-grow: 1;
+          }
+          @media only screen and (max-width: 768px) {
+            .popusk {
+              width: 0;
             }
-            return null;
-          },
-          powers() {
-            return ["p1", "p2", "p3"]
-              .filter((power) => this.offer[power])
-              .map((power) => {
-                return {
-                  text: power.toUpperCase(),
-                  value: this.offer[power],
-                };
-              });
-          },
-          consumptions() {
-            return ["c1", "c2", "c3"]
-              .filter((consumption) => this.offer[consumption])
-              .map((consumption) => {
-                return {
-                  text: consumption.replace("c", "p").toUpperCase(),
-                  value: this.offer[consumption],
-                };
-              });
-          },
-          moreFields() {
-            return this.show === "assis";
-          },
-          withFactura() {
-            return this.show === "calc";
-          },
-        },
-        methods: {
-          launchTour() {
-            this.$tours.comparadorTour.start();
-          },
-          contractOnline() {
-            const aep = `contract_online${
-              this.moreFields
-                ? "_plus"
-                : this.withFactura
-                ? "_with_factura"
-                : ""
-            }`;
-            const postData = this.withFactura
-              ? { ...this.user }
-              : { ...this.user, offer: this.offer.id };
-            const formData = new FormData();
-            for (const field in postData) {
-              const value = postData[field];
-              if (value !== null) formData.append(field, value);
+            .popusk-2 {
+              flex-grow: 3;
             }
-            // noinspection JSUnresolvedVariable
-            axios
-              .post(this.url + `/api/users/${aep}/`, formData)
-              .then(() =>
-                location.replace(
-                  "https://gestiongroup.es/gracias-por-registrarte"
-                )
-              )
-              .catch((e) => (this.userErrors = e.response.data));
-          },
-          getCalculations(offer) {
-            this.offer = offer;
-            const postData = { ...this.form, id: this.offer.id };
-            // noinspection JSUnresolvedVariable
-            axios
-              .post(this.url + "/api/calculator/calculate", postData, {
-                withCredentials: true,
-              })
-              .then((response) => {
-                this.calculations = response.data;
-                this.show = "detail";
-              })
-              .catch((e) => console.debug(e));
-          },
-          back() {
-            switch (this.show) {
-              case "calc":
-                if (this.showResults) {
-                  this.showResults = false;
+          }
+          .v-step[data-v-7c9c03f0] {
+            background: #002d53;
+          }
+          .v-step__header[data-v-7c9c03f0] {
+            background-color: #183f60;
+          }
+        </style>
+
+        <script
+          async
+          src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"
+        ></script>
+        <script
+          async
+          src="https://unpkg.com/vue-cookies@1.7.3/vue-cookies.js"
+        ></script>
+
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+
+        <script src="https://unpkg.com/vue-tour@1.5.0/dist/vue-tour.umd.min.js"></script>
+        <script defer>
+          Vue.use(["vue-tour"]);
+
+          const areaUrl = "https://areaclientes.gestiongroup.es";
+          const mediaUrl = areaUrl + "/media/hints";
+          const pHint =
+            "Ingrese aquí la potencia contratada en kw. Está información puede obtenerse en su factura.";
+          const cHint =
+            "Ingrese aquí la energía consumida en kw para cada período. Está información puede obtenerse en su factura.";
+
+          // noinspection JSUnresolvedFunction
+          new Vue({
+            el: "#app",
+            vuetify: new Vuetify(),
+            data() {
+              return {
+                pHint: pHint,
+                cHint: cHint,
+                url: areaUrl,
+                privacyAccepted: false,
+                calculations: {},
+                offer: null,
+                showResults: false,
+                show: "calc",
+                loading: false,
+                offers: [],
+                form: {
+                  with_calculations: true,
+                },
+                errorMessages: {},
+                companies: [],
+                tarifs: [],
+                user: {
+                  phone: "",
+                },
+                userErrors: {},
+                tourSteps: [
+                  {
+                    target: "#v-step-company",
+                    header: {
+                      title: "Comercializadora actual",
+                    },
+                    content: `Elija la empresa comercializadora con la que está actualmente. <br> <img style="max-width: 100%;"  src="${mediaUrl}/company.webp">`,
+                  },
+                  {
+                    target: "#v-step-tarif",
+                    header: {
+                      title: "Tarifa",
+                    },
+                    content: `Elige tu tarifa o peaje de acceso. <br> <video style="max-width: 100%;" autoplay loop muted playsinline src="${mediaUrl}/tarif.webm"></video>`,
+                  },
+                  {
+                    target: "#v-step-client-type",
+                    header: {
+                      title: "Tipo de cliente",
+                    },
+                    content: `Elija el perfil de cliente más adecuado para usted. <br> <img style="max-width: 100%;"  src="${mediaUrl}/client_type.jpg">`,
+                  },
+                  {
+                    target: "#v-step-period",
+                    header: {
+                      title: "Periodo",
+                    },
+                    content: `En este campo, ingrese el período (en días) por el cual se le factura. Está información puede obtenerse en su factura. <br> <video style="max-width: 100%;" autoplay loop muted playsinline src="${mediaUrl}/period.webm"></video>`,
+                  },
+                  {
+                    target: "#v-step-current-price",
+                    header: {
+                      title: "Cadidad de pago en la factura actual",
+                    },
+                    content: `En este campo, ingrese el período (en días) por el cual se le factura. Está información puede obtenerse en su factura. <br> <video style="max-width: 100%;" autoplay loop muted playsinline src="${mediaUrl}/current_price.webm"></video>`,
+                  },
+                  {
+                    target: "#v-step-p1",
+                    header: {
+                      title: "Potencia",
+                    },
+                    content: `${pHint} <br> <video style="max-width: 100%;" autoplay loop muted playsinline src="${mediaUrl}/potencia.webm"></video>`,
+                  },
+                  {
+                    target: "#v-step-c1",
+                    header: {
+                      title: "Consumo",
+                    },
+                    content: `${cHint} <br> <video style="max-width: 100%;" autoplay loop muted playsinline src="${mediaUrl}/consumo.webm"></video>`,
+                  },
+                ],
+              };
+            },
+            mounted() {
+              fetch(this.url + "/api/calculator/companies/")
+                .then((response) => response.json())
+                .then((companies) => (this.companies = companies));
+
+              fetch(this.url + "/api/calculator/tarifs/")
+                .then((response) => response.json())
+                .then((tarifs) => (this.tarifs = tarifs));
+            },
+            computed: {
+              potenciaErrors() {
+                if (!this.form.tarif || !this.form.p1) return null;
+                if (
+                  (this.form.tarif.includes("2.0") && this.form.p1 > 10) ||
+                  this.form.p1 <= 0
+                ) {
+                  return ["Seleccione un valor de 1 kW a 10 kW"];
+                } else if (this.form.tarif.includes("2.1")) {
+                  if (this.form.p1 > 15) {
+                    return ["Seleccione un valor de 10 kW a 15 kW"];
+                  } else if (this.form.p1 < 10) {
+                    return ["Seleccione un valor de 10 kW a 15 kW"];
+                  }
                 }
-                break;
-              case "detail":
-                this.show = "calc";
-                break;
-              case "online":
-                this.show = "detail";
-                break;
-              case "assis":
-                this.show = "detail";
-                break;
-              default:
-                this.show = "calc";
-                break;
-            }
-          },
-          showInput(letter, number) {
-            return (
-              number === "1" ||
-              ["3.0A", "3.1A"].includes(this.form.tarif) ||
-              (letter + number === "c3" &&
-                ["2.1DHA", "2.0DHA"].includes(this.form.tarif))
-            );
-          },
-          calculate() {
-            this.errorMessages = {};
-            this.loading = true;
-            // noinspection JSUnresolvedVariable
-            const utmCookie = $cookies.get("TILDAUTM");
+                return null;
+              },
+              powers() {
+                return ["p1", "p2", "p3"]
+                  .filter((power) => this.offer[power])
+                  .map((power) => {
+                    return {
+                      text: power.toUpperCase(),
+                      value: this.offer[power],
+                    };
+                  });
+              },
+              consumptions() {
+                return ["c1", "c2", "c3"]
+                  .filter((consumption) => this.offer[consumption])
+                  .map((consumption) => {
+                    return {
+                      text: consumption.replace("c", "p").toUpperCase(),
+                      value: this.offer[consumption],
+                    };
+                  });
+              },
+              moreFields() {
+                return this.show === "assis";
+              },
+              withFactura() {
+                return this.show === "calc";
+              },
+            },
+            methods: {
+              launchTour() {
+                this.$tours.comparadorTour.start();
+              },
+              contractOnline() {
+                const aep = `contract_online${
+                  this.moreFields
+                    ? "_plus"
+                    : this.withFactura
+                    ? "_with_factura"
+                    : ""
+                }`;
+                const postData = this.withFactura
+                  ? { ...this.user }
+                  : { ...this.user, offer: this.offer.id };
+                const formData = new FormData();
+                for (const field in postData) {
+                  const value = postData[field];
+                  if (value !== null) formData.append(field, value);
+                }
+                // noinspection JSUnresolvedVariable
+                axios
+                  .post(this.url + `/api/users/${aep}/`, formData)
+                  .then(() =>
+                    location.replace(
+                      "https://gestiongroup.es/gracias-por-registrarte"
+                    )
+                  )
+                  .catch((e) => (this.userErrors = e.response.data));
+              },
+              getCalculations(offer) {
+                this.offer = offer;
+                const postData = { ...this.form, id: this.offer.id };
+                // noinspection JSUnresolvedVariable
+                axios
+                  .post(this.url + "/api/calculator/calculate", postData, {
+                    withCredentials: true,
+                  })
+                  .then((response) => {
+                    this.calculations = response.data;
+                    this.show = "detail";
+                  })
+                  .catch((e) => console.debug(e));
+              },
+              back() {
+                switch (this.show) {
+                  case "calc":
+                    if (this.showResults) {
+                      this.showResults = false;
+                    }
+                    break;
+                  case "detail":
+                    this.show = "calc";
+                    break;
+                  case "online":
+                    this.show = "detail";
+                    break;
+                  case "assis":
+                    this.show = "detail";
+                    break;
+                  default:
+                    this.show = "calc";
+                    break;
+                }
+              },
+              showInput(letter, number) {
+                return (
+                  number === "1" ||
+                  ["3.0A", "3.1A"].includes(this.form.tarif) ||
+                  (letter + number === "c3" &&
+                    ["2.1DHA", "2.0DHA"].includes(this.form.tarif))
+                );
+              },
+              calculate() {
+                this.errorMessages = {};
+                this.loading = true;
+                // noinspection JSUnresolvedVariable
+                const utmCookie = $cookies.get("TILDAUTM");
 
-            // noinspection JSUnresolvedVariable
-            axios
-              .post(
-                this.url + "/api/calculator/calculate",
-                { ...this.form, utmCookie },
-                { withCredentials: true }
-              )
-              .then((response) => {
-                this.offers = response.data;
-                this.showResults = true;
-              })
-              .catch((e) => (this.errorMessages = e.response.data))
-              .finally(() => (this.loading = false));
-          },
-        },
-      });
-    </script>
-  </body>
-</html>
+                // noinspection JSUnresolvedVariable
+                axios
+                  .post(
+                    this.url + "/api/calculator/calculate",
+                    { ...this.form, utmCookie },
+                    { withCredentials: true }
+                  )
+                  .then((response) => {
+                    this.offers = response.data;
+                    this.showResults = true;
+                  })
+                  .catch((e) => (this.errorMessages = e.response.data))
+                  .finally(() => (this.loading = false));
+              },
+            },
+          });
+        </script>
+      </body>
+    </html>
