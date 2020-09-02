@@ -464,7 +464,7 @@
                                 @click="show = 'assis'"
                               >
                                 <v-card-title class="text-h5 text-no-wrap"
-                                  >Contractar online
+                                  >Siguiente
                                 </v-card-title>
                               </v-card>
                             </template>
@@ -508,14 +508,6 @@
                     style="font-size: 42px; color: #004680"
                   >
                     No encuentras los datos solicitados?
-                  </p>
-
-                  <p
-                    v-else
-                    class="text-center"
-                    style="font-size: 30px; color: #004680"
-                  >
-                    Contractar {{ moreFields ? 'online' : 'con asistente' }}
                   </p>
 
                   <p
@@ -619,7 +611,7 @@
 
                     <div class="text-center">
                       <v-btn type="submit" :disabled="!privacyAccepted">
-                        Contractar
+                        Enviar
                       </v-btn>
                     </div>
                   </v-form>
